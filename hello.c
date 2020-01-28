@@ -39,7 +39,7 @@ static int __init hello_init(void)
 {
 	dev_t dev;
 	int sum = AddIntegers(1,1);
-	int major = 0, minor = 22, result = 0;
+	int major = 0, minor = 0, result = 0;
 	dev = MKDEV(major, minor);
 	result = register_chrdev_region(dev, 1, "hello_scull");
 	if(result <0)
@@ -54,6 +54,9 @@ static int __init hello_init(void)
 
 static void __exit hello_exit(void)
 {
+	dev_t dev;
+	dev = MKDEV(0, 0);
+	unregister_chrdev_region(dev, 1);
 	printk(KERN_ALERT "Goodbye!\n");
 }
 
