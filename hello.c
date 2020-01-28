@@ -8,6 +8,20 @@ MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
 MODULE_VERSION("0.1");
 
+static char *whom = "world";
+static int howmany = 1;
+module_param(howmany, int, S_IRUGO);
+module_param(whom, charp, S_IRUGO);
+
+static void printGreeting(void)
+{
+	int i = 0;
+	for(i=0;i<howmany;i++)
+	{
+		printk(KERN_ALERT "Hello %s\n", whom);
+	}
+}
+
 static int AddIntegers(int a, int b)
 {
 	int sum = a + b;
@@ -17,7 +31,7 @@ static int AddIntegers(int a, int b)
 static int __init hello_init(void)
 {
 	int sum = AddIntegers(1,1);
-	printk(KERN_ALERT "Hello world!\n");
+	printGreeting();
 	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
 	return 0;
