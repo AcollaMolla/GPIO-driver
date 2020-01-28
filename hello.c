@@ -7,17 +7,17 @@ MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
 MODULE_VERSION("0.1");
 
-static int __init hello_start(void)
+static int hello_init(void)
 {
-	printk(KERN_ALERT "Hello world!");
+	printk(KERN_ALERT "Hello world!\n");
 	return 0;
 }
 
-static void __exit hello_end(void)
+static void hello_exit(void)
 {
-	printk(KERN_ALERT "Goodbye");
+	printk(KERN_ALERT "Goodbye!\n");
 }
 
-module_init(hello_start);
-module_exit(hello_end);
+module_init(hello_init);
+module_exit(hello_exit);
 
