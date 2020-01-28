@@ -1,6 +1,7 @@
 #include <linux/module.h>
 #include <linux/kernel.h>
 #include <linux/init.h>
+#include <linux/sched.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
@@ -10,6 +11,7 @@ MODULE_VERSION("0.1");
 static int hello_init(void)
 {
 	printk(KERN_ALERT "Hello world!\n");
+	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
 	return 0;
 }
 
