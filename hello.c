@@ -2,6 +2,9 @@
 #include <linux/kernel.h>
 #include <linux/init.h>
 #include <linux/sched.h>
+#include <linux/types.h>
+#include <linux/kdev_t.h>
+#include <linux/fs.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
@@ -10,8 +13,11 @@ MODULE_VERSION("0.1");
 
 static char *whom = "world";
 static int howmany = 1;
+
+
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
+
 
 static void printGreeting(void)
 {
@@ -20,6 +26,7 @@ static void printGreeting(void)
 	{
 		printk(KERN_ALERT "Hello %s\n", whom);
 	}
+	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
 }
 
 static int AddIntegers(int a, int b)
@@ -30,9 +37,17 @@ static int AddIntegers(int a, int b)
 
 static int __init hello_init(void)
 {
+	dev_t dev;
 	int sum = AddIntegers(1,1);
+	int major = 0, minor = 22, result = 0;
+	dev = MKDEV(major, minor);
+	result = register_chrdev_region(dev, 2, "hello_scull");
+	if(result <0)
+	{
+		printk(KERN_ALERT "ERROR: can't get major %d\n", major);
+		return result;
+	} 
 	printGreeting();
-	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
 	return 0;
 }
