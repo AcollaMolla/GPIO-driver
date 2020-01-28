@@ -41,7 +41,7 @@ static int __init hello_init(void)
 	int sum = AddIntegers(1,1);
 	int major = 0, minor = 22, result = 0;
 	dev = MKDEV(major, minor);
-	result = register_chrdev_region(dev, 2, "hello_scull");
+	result = register_chrdev_region(dev, 1, "hello_scull");
 	if(result <0)
 	{
 		printk(KERN_ALERT "ERROR: can't get major %d\n", major);
