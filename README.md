@@ -9,3 +9,18 @@ Then run the Makefile from this project:
 ```
 make
 ```
+
+Insert the compiled module using
+```
+sudo insmod hello.ko
+```
+
+View the printk output by looking at the system logs (in Ubuntu):
+```
+tail /var/log/kern.log
+```
+
+Remove the inserted module using
+```
+sudo rmmod hello.ko
+```
