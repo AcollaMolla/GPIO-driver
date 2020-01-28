@@ -8,7 +8,7 @@ MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
 MODULE_VERSION("0.1");
 
-static int hello_init(void)
+static int __init hello_init(void)
 {
 	printk(KERN_ALERT "Hello world!\n");
 	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
