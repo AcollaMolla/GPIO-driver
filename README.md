@@ -1,5 +1,5 @@
 # HelloWorldDriver
-A simple driver module for the Linux kernel that prints 'Hello world'
+A simple driver module for the Linux kernel that prints 'Hello world'. This project is following the tutorials in the book *Linux device drivers*.
 First of all, install the Linux headers on the device:
 ```
 sudo apt-get install build-essential linux-headers-$(uname -r)
