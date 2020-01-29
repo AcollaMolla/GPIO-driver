@@ -19,14 +19,14 @@ module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
 
 
-static void printGreeting(void)
+static void printGreeting(int major)
 {
 	int i = 0;
 	for(i=0;i<howmany;i++)
 	{
 		printk(KERN_ALERT "Hello %s\n", whom);
 	}
-	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n", current->comm, current->pid);
+	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n MAJOR=%d", current->comm, current->pid, major);
 }
 
 static int AddIntegers(int a, int b)
@@ -37,17 +37,18 @@ static int AddIntegers(int a, int b)
 
 static int __init hello_init(void)
 {
-	dev_t dev;
+	dev_t dev = 0;
 	int sum = AddIntegers(1,1);
 	int major = 0, minor = 0, result = 0;
 	dev = MKDEV(major, minor);
-	result = register_chrdev_region(dev, 1, "hello_scull");
+	result = alloc_chrdev_region(&dev, minor, 1, "hello_scull");
+	major = MAJOR(dev);
 	if(result <0)
 	{
 		printk(KERN_ALERT "ERROR: can't get major %d\n", major);
 		return result;
 	} 
-	printGreeting();
+	printGreeting(major);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
 	return 0;
 }
