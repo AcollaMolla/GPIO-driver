@@ -13,7 +13,7 @@ MODULE_VERSION("0.1");
 
 static char *whom = "world";
 static int howmany = 1;
-
+int dev_major = 0, dev_minor = 0;
 
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
@@ -39,16 +39,15 @@ static int __init hello_init(void)
 {
 	dev_t dev = 0;
 	int sum = AddIntegers(1,1);
-	int major = 0, minor = 0, result = 0;
-	dev = MKDEV(major, minor);
-	result = alloc_chrdev_region(&dev, minor, 1, "hello_scull");
-	major = MAJOR(dev);
+	int result = 0;
+	result = alloc_chrdev_region(&dev, dev_minor, 1, "hello_scull");
+	dev_major = MAJOR(dev);
 	if(result <0)
 	{
-		printk(KERN_ALERT "ERROR: can't get major %d\n", major);
+		printk(KERN_ALERT "ERROR: can't get major %d\n", dev_major);
 		return result;
 	} 
-	printGreeting(major);
+	printGreeting(dev_major);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
 	return 0;
 }
@@ -56,9 +55,9 @@ static int __init hello_init(void)
 static void __exit hello_exit(void)
 {
 	dev_t dev;
-	dev = MKDEV(0, 0);
+	dev = MKDEV(dev_major, dev_minor);
 	unregister_chrdev_region(dev, 1);
-	printk(KERN_ALERT "Goodbye!\n");
+	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
 
 module_init(hello_init);
