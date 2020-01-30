@@ -5,6 +5,8 @@
 #include <linux/types.h>
 #include <linux/kdev_t.h>
 #include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/slab.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
@@ -15,9 +17,16 @@ static char *whom = "world";
 static int howmany = 1;
 int dev_major = 0, dev_minor = 0;
 
+struct scull_dev
+{
+	struct scull_qset *data;
+	int quantum;
+	struct cdev cdev;
+};
+struct scull_dev *scull_devices;
+
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
-
 
 static void printGreeting(int major)
 {
@@ -35,11 +44,46 @@ static int AddIntegers(int a, int b)
 	return sum;
 }
 
+int scull_open(struct inode *inode, struct file *filp)
+{
+	/*struct scull_dev *dev;
+	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
+	filp->private_data = dev;
+	if((filp->f_flags & O_ACCMODE) == O_WRONLY)
+	{
+		return 1;
+	}*/
+	return 0;
+}
+
+int scull_release(struct inode *inode, struct file *filp)
+{
+	return 0;
+}
+
+struct file_operations scull_fops =
+{
+	.owner = THIS_MODULE,
+	.open = scull_open,
+	.release = scull_release,
+};
+
+static void scull_setup_cdev(struct scull_dev *dev, int index)
+{
+	int err, devno = MKDEV(dev_major, dev_minor + index);
+
+	cdev_init(&dev->cdev, &scull_fops);
+	dev->cdev.owner = THIS_MODULE;
+	dev->cdev.ops = &scull_fops;
+	err = cdev_add(&dev->cdev, devno, 1);
+	if(err)printk(KERN_ALERT "Error %d adding hello_scull%d", err, index);
+}
+
 static int __init hello_init(void)
 {
 	dev_t dev = 0;
 	int sum = AddIntegers(1,1);
-	int result = 0;
+	int result = 0, i=0;
 	result = alloc_chrdev_region(&dev, dev_minor, 1, "hello_scull");
 	dev_major = MAJOR(dev);
 	if(result <0)
@@ -47,6 +91,19 @@ static int __init hello_init(void)
 		printk(KERN_ALERT "ERROR: can't get major %d\n", dev_major);
 		return result;
 	} 
+	
+	scull_devices = kmalloc(1 * sizeof(struct scull_dev), GFP_KERNEL);
+	if(!scull_devices)
+	{
+		//Should do cleanup and stuff
+		return -1;
+	}
+	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
+	for(i = 0; i < 1; i++)
+	{
+		scull_devices[i].quantum = 4000;
+		scull_setup_cdev(&scull_devices[i], i);
+	}
 	printGreeting(dev_major);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
 	return 0;
