@@ -71,12 +71,13 @@ struct file_operations scull_fops =
 static void scull_setup_cdev(struct scull_dev *dev, int index)
 {
 	int err, devno = MKDEV(dev_major, dev_minor + index);
-
+	printk(KERN_ALERT "Attempting to setup cdev\n");
 	cdev_init(&dev->cdev, &scull_fops);
 	dev->cdev.owner = THIS_MODULE;
 	dev->cdev.ops = &scull_fops;
 	err = cdev_add(&dev->cdev, devno, 1);
 	if(err)printk(KERN_ALERT "Error %d adding hello_scull%d", err, index);
+	else printk(KERN_ALERT "cdev setup complete.\n");
 }
 
 static int __init hello_init(void)
@@ -96,6 +97,7 @@ static int __init hello_init(void)
 	if(!scull_devices)
 	{
 		//Should do cleanup and stuff
+		printk(KERN_ALERT "ERROR: Couldn't allocate memory for device\n");
 		return -1;
 	}
 	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
