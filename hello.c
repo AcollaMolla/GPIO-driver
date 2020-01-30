@@ -46,13 +46,15 @@ static int AddIntegers(int a, int b)
 
 int scull_open(struct inode *inode, struct file *filp)
 {
-	/*struct scull_dev *dev;
+	struct scull_dev *dev;
+	printk(KERN_ALERT "Open() \n");
 	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
 	filp->private_data = dev;
 	if((filp->f_flags & O_ACCMODE) == O_WRONLY)
 	{
 		return 1;
-	}*/
+	}
+	printk(KERN_ALERT "hello_scull was called with .open()!!\n");
 	return 0;
 }
 
@@ -85,7 +87,7 @@ static int __init hello_init(void)
 	dev_t dev = 0;
 	int sum = AddIntegers(1,1);
 	int result = 0, i=0;
-	result = alloc_chrdev_region(&dev, dev_minor, 1, "hello_scull");
+	result = alloc_chrdev_region(&dev, dev_minor, 1, "scull");
 	dev_major = MAJOR(dev);
 	if(result <0)
 	{

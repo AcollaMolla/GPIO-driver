@@ -1,0 +1,8 @@
+#!/bin/sh
+
+module="hello"
+device="scull"
+
+/sbin/rmmod $module $* || exit 1
+
+rm -f /dev/${device}
