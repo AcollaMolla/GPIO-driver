@@ -115,6 +115,11 @@ static void __exit hello_exit(void)
 {
 	dev_t dev;
 	dev = MKDEV(dev_major, dev_minor);
+	if(scull_devices)
+	{
+		printk(KERN_ALERT "Freeing allocated memory\n");
+		kfree(scull_devices);
+	}
 	unregister_chrdev_region(dev, 1);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
