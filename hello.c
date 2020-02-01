@@ -47,16 +47,16 @@ static int AddIntegers(int a, int b)
 int scull_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev;
-	printk(KERN_ALERT "Open()\n");
-	/*dev = container_of(inode->i_cdev, struct scull_dev, cdev);
+	printk(KERN_ALERT "The driver has been called with open()\n");
+	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
 	filp->private_data = dev;
 	if((filp->f_flags & O_ACCMODE) == O_WRONLY)
 	{
-		printk(KERN_ALERT "write only mode\n");
+		printk(KERN_ALERT "The driver has been opened in WRITE ONLY mode!\n");
 		return 0;
 	}
 	printk(KERN_ALERT "hello_scull was called with .open()!!\n");
-	*/return 0;
+	return 0;
 }
 
 int scull_release(struct inode *inode, struct file *filp)

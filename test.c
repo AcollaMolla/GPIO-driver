@@ -1,20 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
-#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
 int main()
 {
-	FILE *f;
-	f = fopen("/dev/scull","w");
-	if(f == NULL || f < 0)
+	int f = open("/dev/scull", O_WRONLY);
+	if(f < 0)
 	{
 		printf("Fail\n");
-		fprintf(stderr, "fopen() failed: %s\n", strerror(errno));
 	}
 	else
 	{
-		printf("Succeeded and pointing at %p\n", f);
+		printf("Succeeded\n");
 	}
 	return 0;
 }
