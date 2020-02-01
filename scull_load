@@ -15,7 +15,7 @@ fi
 major=$(awk "\$2 == \"$device\" {print \$1}" /proc/devices)
 echo "major='$major'"
 rm -f /dev/${device}
-mknod /dev/${device} c $major 0
-sudo ln -sf ${module} /dev/${device}
-sudo chgrp $group /dev/${device}
+mknod /dev/${device} c $major 0 || exit 2
+#sudo ln -sf ${device} /dev/${device}
+#sudo chgrp $group /dev/${device}
 sudo chmod $mode /dev/${device}

@@ -19,8 +19,8 @@ int dev_major = 0, dev_minor = 0;
 
 struct scull_dev
 {
-	struct scull_qset *data;
-	int quantum;
+	//struct scull_qset *data;
+	//int quantum;
 	struct cdev cdev;
 };
 struct scull_dev *scull_devices;
@@ -35,7 +35,7 @@ static void printGreeting(int major)
 	{
 		printk(KERN_ALERT "Hello %s\n", whom);
 	}
-	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n MAJOR=%d", current->comm, current->pid, major);
+	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n MAJOR=%d\n", current->comm, current->pid, major);
 }
 
 static int AddIntegers(int a, int b)
@@ -47,15 +47,16 @@ static int AddIntegers(int a, int b)
 int scull_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev;
-	printk(KERN_ALERT "Open() \n");
-	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
+	printk(KERN_ALERT "Open()\n");
+	/*dev = container_of(inode->i_cdev, struct scull_dev, cdev);
 	filp->private_data = dev;
 	if((filp->f_flags & O_ACCMODE) == O_WRONLY)
 	{
-		return 1;
+		printk(KERN_ALERT "write only mode\n");
+		return 0;
 	}
 	printk(KERN_ALERT "hello_scull was called with .open()!!\n");
-	return 0;
+	*/return 0;
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -105,7 +106,7 @@ static int __init hello_init(void)
 	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
 	for(i = 0; i < 1; i++)
 	{
-		scull_devices[i].quantum = 4000;
+		//scull_devices[i].quantum = 4000;
 		scull_setup_cdev(&scull_devices[i], i);
 	}
 	printGreeting(dev_major);
