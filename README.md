@@ -10,17 +10,26 @@ Then run the Makefile from this project:
 make
 ```
 
-Insert the compiled module using
+Initialize the compiled module using:
 ```
-sudo insmod hello.ko
+sudo ./scull_load
 ```
+This script will automatically insert the module into the Kernel and create /dev/scull.
 
 View the printk output by looking at the system logs (in Ubuntu):
 ```
 tail /var/log/kern.log
 ```
 
+Optionally, compile and run:
+```
+gcc test.c -o test
+sudo ./test
+```
+The program *test* will make the call *open("/dev/scull")* which will trigger the *printk()* statement in the *scull_open()* function in hello.c and get printed to */var/log/kern.log*
+
 Remove the inserted module using
 ```
-sudo rmmod hello.ko
+sudo ./scull_unload
 ```
+This script will automatically remove the module from the Kernel and delete /dev/scull.
