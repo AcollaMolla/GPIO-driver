@@ -20,7 +20,9 @@ int dev_major = 0, dev_minor = 0;
 struct scull_dev
 {
 	//struct scull_qset *data;
-	//int quantum;
+	int quantum;
+	int qset;
+	unsigned long size;
 	struct cdev cdev;
 };
 struct scull_dev *scull_devices;
@@ -59,6 +61,20 @@ int scull_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
+{
+	struct scull_dev *dev = filp->private_data;
+	struct scull_qset *dptr;
+	int quantum = dev->quantum, qset = dev->qset;
+	int itemsize = quantum * qset;
+	int item, s_pos, q_pos, rest;
+
+	/*if(*f_pos >= dev->size)
+		count = dev->size - *f_pos;
+	if(*f_pos + count > dev->size)
+		count = dev->size - *f_pos;*/
+}
+
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
@@ -68,6 +84,7 @@ struct file_operations scull_fops =
 {
 	.owner = THIS_MODULE,
 	.open = scull_open,
+	.read = scull_read,
 	.release = scull_release,
 };
 
@@ -106,7 +123,8 @@ static int __init hello_init(void)
 	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
 	for(i = 0; i < 1; i++)
 	{
-		//scull_devices[i].quantum = 4000;
+		scull_devices[i].quantum = 4000;
+		scull_devices[i].qset = 1000;
 		scull_setup_cdev(&scull_devices[i], i);
 	}
 	printGreeting(dev_major);
