@@ -7,6 +7,8 @@
 #include <linux/fs.h>
 #include <linux/cdev.h>
 #include <linux/slab.h>
+#include <asm/uaccess.h>
+#include <linux/uaccess.h>
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
@@ -95,16 +97,35 @@ int scull_open(struct inode *inode, struct file *filp)
 
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
+	printk(KERN_ALERT "The driver has been called with write()\n");
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
 	int itemsize = quantum * qset;
 	int item, s_pos, q_pos, rest;
+	ssize_t retval = 0;
 
-	/*if(*f_pos >= dev->size)
+	if(*f_pos >= dev->size)
 		count = dev->size - *f_pos;
 	if(*f_pos + count > dev->size)
-		count = dev->size - *f_pos;*/
+		count = dev->size - *f_pos;
+	
+	item = (long)*f_pos / itemsize;
+	rest = (long)*f_pos % itemsize;
+	s_pos = rest / quantum; q_pos = rest % quantum;
+	
+	if(count > quantum - q_pos)
+		count = quantum - q_pos;
+	if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
+	{
+		retval = -EFAULT;
+		goto out;
+	}
+	*f_pos += count;
+	retval = count;
+
+	out:
+		return retval;
 }
 
 int scull_release(struct inode *inode, struct file *filp)
