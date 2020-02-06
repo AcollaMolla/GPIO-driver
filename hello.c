@@ -17,9 +17,15 @@ static char *whom = "world";
 static int howmany = 1;
 int dev_major = 0, dev_minor = 0;
 
+struct scull_qset
+{
+	void **data;
+	struct scull_qset *next;
+};
+
 struct scull_dev
 {
-	//struct scull_qset *data;
+	struct scull_qset *data;
 	int quantum;
 	int qset;
 	unsigned long size;
@@ -46,6 +52,32 @@ static int AddIntegers(int a, int b)
 	return sum;
 }
 
+int scull_trim(struct scull_dev *dev)
+{
+	struct scull_qset *next, *dptr;
+	int qset = dev->qset;
+	int i;
+	for(dptr = dev->data; dptr = next;)
+	{
+		if(dptr->data)
+		{
+			for(i = 0; i < qset; i++)
+			{
+				kfree(dptr->data[i]);
+			}
+			kfree(dptr->data);
+			dptr->data = NULL;
+		}
+		next = dptr->next;
+		kfree(dptr);
+	}
+	dev->size = 0;
+	dev->quantum = 4000;
+	dev->qset = 1000;
+	dev->data = NULL;
+	return 0;
+}
+
 int scull_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev;
@@ -55,7 +87,7 @@ int scull_open(struct inode *inode, struct file *filp)
 	if((filp->f_flags & O_ACCMODE) == O_WRONLY)
 	{
 		printk(KERN_ALERT "The driver has been opened in WRITE ONLY mode!\n");
-		return 0;
+		scull_trim(dev);
 	}
 	printk(KERN_ALERT "hello_scull was called with .open()!!\n");
 	return 0;
