@@ -136,6 +136,36 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 		return retval;
 }
 
+ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
+{
+	struct scull_dev *dev = filp->private_data;
+	struct scull_qset *dptr;
+	int quantum = dev->quantum, qset = dev->qset;
+	int itemsize = quantum * qset;
+	int item, s_pos, q_pos, rest;
+	ssize_t retval = -ENOMEM;
+	
+	item = (long)*f_pos / itemsize;
+	rest = (long)*f_pos % itemsize;
+	s_pos = rest / quantum; q_pos = rest % quantum;
+	
+	if(count > quantum - q_pos)
+		count = quantum - q_pos;
+	if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
+	{
+		retval = -EFAULT;
+		goto out;
+	}
+	*f_pos += count;
+	retval = count;
+
+	if(dev->size < *f_pos)
+		dev->size = *f_pos;
+
+	out:
+		return retval;
+}
+
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
