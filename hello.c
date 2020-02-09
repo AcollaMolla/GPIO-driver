@@ -98,6 +98,7 @@ int scull_open(struct inode *inode, struct file *filp)
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
 	printk(KERN_ALERT "The driver has been called with read()\n");
+	return 10;
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
@@ -138,24 +139,33 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
+	printk(KERN_ALERT "Writing to device...\n");
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
 	int itemsize = quantum * qset;
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM;
-	
+	printk(KERN_ALERT "Performing calculations...\n");
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
+
+	printk(KERN_ALERT "Entering if-statements...count = %zu quantum = %d q_pos = %d\n",count, quantum, q_pos);
 	
 	if(count > quantum - q_pos)
+	{
+		printk(KERN_ALERT "inside if\n");
 		count = quantum - q_pos;
+	}
+	printk(KERN_ALERT "finished first if\n");
 	if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
 	{
+		printk(KERN_ALERT "next if\n");
 		retval = -EFAULT;
 		goto out;
 	}
+
 	*f_pos += count;
 	retval = count;
 
@@ -176,6 +186,7 @@ struct file_operations scull_fops =
 	.owner = THIS_MODULE,
 	.open = scull_open,
 	.read = scull_read,
+	.write = scull_write,
 	.release = scull_release,
 };
 

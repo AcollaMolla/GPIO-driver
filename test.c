@@ -3,13 +3,14 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <sys/types.h>
+#include <string.h>
 
 int main()
 {
-	int f = open("/dev/scull", O_RDONLY);
-	char buff[1000];
+	int f = open("/dev/scull", O_RDWR);
+	char buff[1000], msg[12] = "Hello World!";
 	size_t nbytes;
-	ssize_t bytes_read=0;
+	ssize_t bytes_read=0, bytes_written=0;
 	int fd;
 
 	if(f < 0)
@@ -20,6 +21,8 @@ int main()
 	{
 		printf("Succeeded opening device\n");
 		nbytes = sizeof(buff);
+		bytes_written = write(f, msg, sizeof(msg));
+		printf("bytes_written=%ld\n", bytes_written);
 		bytes_read = read(f, buff, nbytes);
 		if(bytes_read == 0)
 		{
