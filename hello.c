@@ -97,7 +97,7 @@ int scull_open(struct inode *inode, struct file *filp)
 
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
-	printk(KERN_ALERT "The driver has been called with write()\n");
+	printk(KERN_ALERT "The driver has been called with read()\n");
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
@@ -106,7 +106,11 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	ssize_t retval = 0;
 
 	if(*f_pos >= dev->size)
-		count = dev->size - *f_pos;
+	{
+		printk(KERN_ALERT "*fpos >= dev->size\n");
+		goto out;
+	}
+
 	if(*f_pos + count > dev->size)
 		count = dev->size - *f_pos;
 	
@@ -114,6 +118,9 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
 	
+	/*dptr = scull_follow(dev, item);
+	if(dptr == NULL ||!dptr->data || !dptr->data[s_pos])
+		goto out;*/
 	if(count > quantum - q_pos)
 		count = quantum - q_pos;
 	if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
@@ -125,6 +132,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	retval = count;
 
 	out:
+		printk(KERN_ALERT "retval = %zu\n",retval);
 		return retval;
 }
 

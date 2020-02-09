@@ -6,10 +6,10 @@
 
 int main()
 {
-	int f = open("/dev/scull", O_RDWR);
+	int f = open("/dev/scull", O_RDONLY);
 	char buff[1000];
 	size_t nbytes;
-	ssize_t bytes_read;
+	ssize_t bytes_read=0;
 	int fd;
 
 	if(f < 0)
@@ -18,9 +18,15 @@ int main()
 	}
 	else
 	{
-		printf("Succeeded\n");
+		printf("Succeeded opening device\n");
 		nbytes = sizeof(buff);
-		bytes_read = read(fd, buff, nbytes);
+		bytes_read = read(f, buff, nbytes);
+		if(bytes_read == 0)
+		{
+			printf("No data on device\n");
+		}
+		else
+			printf("The device content: %s\n", buff);
 	}
 	return 0;
 }
