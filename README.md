@@ -21,6 +21,7 @@ View the printk output by looking at the system logs (in Ubuntu):
 ```
 tail -f /var/log/syslog
 ```
+All printk() statements in the driver will be visible in the log.
 
 Optionally, compile and run:
 ```
