@@ -97,6 +97,7 @@ int scull_open(struct inode *inode, struct file *filp)
 
 struct scull_qset *scull_follow(struct scull_dev *dev, int n)
 {
+	printk(KERN_ALERT "scull_follow(): n=%d dev.quantum=%d dev.qset=%d dev.size=%lu\n", n, dev->quantum, dev->qset, dev->size);
 	struct scull_qset *qs = dev->data;
 	
 	if(!qs){
@@ -164,6 +165,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
+	printk(KERN_ALERT "The driver has been called with write()\n");
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
@@ -174,6 +176,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
+	
+	printk(KERN_ALERT "item=%d s_pos=%d q_pos=%d rest=%d\n", item, s_pos, q_pos, rest);
 	
 	dptr = scull_follow(dev, item);
 	if(dptr == NULL)
@@ -189,7 +193,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 		if(!dptr->data[s_pos])
 			goto out;
 	}
-	
+
+	printk(KERN_ALERT "count=%ld\n", count);
+
 	if(count > quantum - q_pos)
 	{
 		count = quantum - q_pos;
@@ -203,7 +209,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
 	*f_pos += count;
 	retval = count;
-
+	
+	printk(KERN_ALERT "f_pos=%llu count=%ld\n", f_pos, count);
+	
 	if(dev->size < *f_pos)
 		dev->size = *f_pos;
 
