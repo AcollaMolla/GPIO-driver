@@ -17,6 +17,7 @@ struct scull_dev
 	int quantum;
 	int qset;
 	unsigned long size;
+	struct semaphore sem;
 	struct cdev cdev;
 };
 struct scull_dev *scull_devices;

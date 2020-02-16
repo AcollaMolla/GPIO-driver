@@ -9,6 +9,7 @@
 #include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/uaccess.h>
+#include <linux/semaphore.h>
 #include "hello.h"
 
 MODULE_LICENSE("GPL");
@@ -111,6 +112,11 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = 0;
 	
+	if(down_interruptible(&dev->sem))
+	{
+		return -ERESTARTSYS;
+	}
+	
 	if(*f_pos >= dev->size)
 	{
 		goto out;
@@ -141,6 +147,7 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 	out:
 		printk(KERN_ALERT "retval = %zu\n",retval);
+		up(&dev->sem);
 		return retval;
 }
 
@@ -251,6 +258,7 @@ static int __init hello_init(void)
 	{
 		scull_devices[i].quantum = QUANTUM;
 		scull_devices[i].qset = QSET;
+		sema_init(&scull_devices[i].sem, 1);
 		scull_setup_cdev(&scull_devices[i], i);
 	}
 	printGreeting(dev_major);
