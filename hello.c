@@ -9,31 +9,12 @@
 #include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/uaccess.h>
+#include "hello.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
 MODULE_VERSION("0.1");
-
-static char *whom = "world";
-static int howmany = 1;
-int dev_major = 0, dev_minor = 0;
-
-struct scull_qset
-{
-	void **data;
-	struct scull_qset *next;
-};
-
-struct scull_dev
-{
-	struct scull_qset *data;
-	int quantum;
-	int qset;
-	unsigned long size;
-	struct cdev cdev;
-};
-struct scull_dev *scull_devices;
 
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
@@ -74,8 +55,8 @@ int scull_trim(struct scull_dev *dev)
 		kfree(dptr);
 	}
 	dev->size = 0;
-	dev->quantum = 4000;
-	dev->qset = 1000;
+	dev->quantum = QUANTUM;
+	dev->qset = QSET;
 	dev->data = NULL;
 	return 0;
 }
@@ -268,8 +249,8 @@ static int __init hello_init(void)
 	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
 	for(i = 0; i < 1; i++)
 	{
-		scull_devices[i].quantum = 4000;
-		scull_devices[i].qset = 1000;
+		scull_devices[i].quantum = QUANTUM;
+		scull_devices[i].qset = QSET;
 		scull_setup_cdev(&scull_devices[i], i);
 	}
 	printGreeting(dev_major);
