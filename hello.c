@@ -167,6 +167,11 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	
 	printk(KERN_ALERT "item=%d s_pos=%d q_pos=%d rest=%d\n", item, s_pos, q_pos, rest);
 	
+	if(down_interruptible(&dev->sem))
+	{
+		return -ERESTARTSYS;
+	}
+	
 	dptr = scull_follow(dev, item);
 	if(dptr == NULL)
 		goto out;
@@ -204,6 +209,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 		dev->size = *f_pos;
 
 	out:
+		up(&dev->sem);
 		return retval;
 }
 
