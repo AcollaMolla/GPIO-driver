@@ -225,6 +225,7 @@ struct file_operations scull_fops =
 	.read = scull_read,
 	.write = scull_write,
 	.release = scull_release,
+	.unlocked_ioctl = NULL,
 };
 
 static void scull_setup_cdev(struct scull_dev *dev, int index)
