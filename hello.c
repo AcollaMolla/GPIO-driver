@@ -213,6 +213,13 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 		return retval;
 }
 
+static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	printk(KERN_ALERT "ioctl called\n");
+	if(_IOC_TYPE(cmd) != MYDRBASE) return -EINVAL;
+	return 0;
+}
+
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
@@ -225,7 +232,7 @@ struct file_operations scull_fops =
 	.read = scull_read,
 	.write = scull_write,
 	.release = scull_release,
-	.unlocked_ioctl = NULL,
+	.unlocked_ioctl = scull_ioctl,
 };
 
 static void scull_setup_cdev(struct scull_dev *dev, int index)

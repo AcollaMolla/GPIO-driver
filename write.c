@@ -4,7 +4,10 @@
 #include <fcntl.h>
 #include <sys/types.h>
 #include <string.h>
+#include <sys/ioctl.h>
 
+#define SCULL_IOC_MAGIC 'k'
+#define SCULL_IOC_MSG _IO(SCULL_IOC_MAGIC, 0)
 int main()
 {
 	int f = open("/dev/scull", O_RDWR);
@@ -19,6 +22,9 @@ int main()
 	}
 	else
 	{
+		printf("Trying ioctl()...\n");
+		long ret_val = ioctl(f, SCULL_IOC_MSG);
+		printf("ioctl() returned: %ld", ret_val);
 		printf("Succeeded opening device\n Write you'r data to the device: ");
 		fgets(msg, 1000, stdin);
 		bytes_written = write(f, msg, sizeof(msg));

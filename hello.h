@@ -1,3 +1,4 @@
+#define MYDRBASE 'k'
 const int QUANTUM = 4000;
 const int QSET = 1000;
 
