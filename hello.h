@@ -12,6 +12,8 @@
 #include <linux/semaphore.h>
 
 #define MYDRBASE 'k'
+#define SCULL_RESET _IO(MYDRBASE, 0)
+#define SCULL_GETSTATE _IO(MYDRBASE, 1)
 
 const int QUANTUM = 4000;
 const int QSET = 1000;

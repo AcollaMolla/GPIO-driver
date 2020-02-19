@@ -7,11 +7,13 @@
 #include <sys/ioctl.h>
 
 #define SCULL_IOC_MAGIC 'k'
-#define SCULL_IOC_MSG _IO(SCULL_IOC_MAGIC, 0)
+#define SCULL_IOC_MSG _IO(SCULL_IOC_MAGIC, 1)
 int main()
 {
 	int f = open("/dev/scull", O_RDWR);
 	char msg[1000] = "A really long hello world message. Can it write more than 3 characters?";
+	char buf[5] = "Hello";
+	char buf1[5];
 	size_t nbytes;
 	ssize_t bytes_written=0;
 	int fd;
@@ -23,8 +25,9 @@ int main()
 	else
 	{
 		printf("Trying ioctl()...\n");
-		long ret_val = ioctl(f, SCULL_IOC_MSG);
+		long ret_val = ioctl(f, SCULL_IOC_MSG, &buf1);
 		printf("ioctl() returned: %ld", ret_val);
+		printf("buf1 = %s\n", buf1);
 		printf("Succeeded opening device\n Write you'r data to the device: ");
 		fgets(msg, 1000, stdin);
 		bytes_written = write(f, msg, sizeof(msg));

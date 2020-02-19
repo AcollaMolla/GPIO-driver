@@ -205,8 +205,23 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
 static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
+	char msg[5] = "World";
+	int ret_val;
 	printk(KERN_ALERT "ioctl called\n");
-	if(_IOC_TYPE(cmd) != MYDRBASE) return -EINVAL;
+	printk(KERN_ALERT "arg = %lu", arg);
+	if(_IOC_TYPE(cmd) != MYDRBASE) 
+		return -EINVAL;
+	printk(KERN_ALERT "cmd == MYDRBASE\n");
+	switch(cmd){
+		case SCULL_RESET:
+			printk(KERN_ALERT "Pretending to reset driver...\n");
+		break;
+		case SCULL_GETSTATE:
+			printk(KERN_ALERT "Responding with made-up state\n");
+			ret_val = copy_to_user((char *)arg, msg, 5);
+			printk(KERN_ALERT "ret_val = %d\n", ret_val);
+		break;
+	}
 	return 0;
 }
 
