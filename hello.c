@@ -9,31 +9,13 @@
 #include <linux/slab.h>
 #include <asm/uaccess.h>
 #include <linux/uaccess.h>
+#include <linux/semaphore.h>
+#include "hello.h"
 
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
 MODULE_VERSION("0.1");
-
-static char *whom = "world";
-static int howmany = 1;
-int dev_major = 0, dev_minor = 0;
-
-struct scull_qset
-{
-	void **data;
-	struct scull_qset *next;
-};
-
-struct scull_dev
-{
-	struct scull_qset *data;
-	int quantum;
-	int qset;
-	unsigned long size;
-	struct cdev cdev;
-};
-struct scull_dev *scull_devices;
 
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
@@ -59,7 +41,7 @@ int scull_trim(struct scull_dev *dev)
 	struct scull_qset *next, *dptr;
 	int qset = dev->qset;
 	int i;
-	for(dptr = dev->data; dptr = next;)
+	for(dptr = dev->data; (dptr = next);)
 	{
 		if(dptr->data)
 		{
@@ -74,8 +56,8 @@ int scull_trim(struct scull_dev *dev)
 		kfree(dptr);
 	}
 	dev->size = 0;
-	dev->quantum = 4000;
-	dev->qset = 1000;
+	dev->quantum = QUANTUM;
+	dev->qset = QSET;
 	dev->data = NULL;
 	return 0;
 }
@@ -95,20 +77,48 @@ int scull_open(struct inode *inode, struct file *filp)
 	return 0;
 }
 
+struct scull_qset *scull_follow(struct scull_dev *dev, int n)
+{
+	printk(KERN_ALERT "scull_follow(): n=%d dev.quantum=%d dev.qset=%d dev.size=%lu\n", n, dev->quantum, dev->qset, dev->size);
+	struct scull_qset *qs = dev->data;
+	
+	if(!qs){
+		qs = dev->data = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+		if(qs == NULL)
+			return NULL;
+		memset(qs, 0, sizeof(struct scull_qset));
+	}
+	
+	while(n--){
+		if(!qs->next){
+			qs->next = kmalloc(sizeof(struct scull_qset), GFP_KERNEL);
+			if(qs->next == NULL)
+				return NULL;
+			memset(qs->next, 0, sizeof(struct scull_qset));
+		}
+		qs = qs->next;
+		continue;
+	}
+	return qs;
+}
+
 ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_pos)
 {
 	printk(KERN_ALERT "The driver has been called with read()\n");
-	return 10;
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr;
 	int quantum = dev->quantum, qset = dev->qset;
 	int itemsize = quantum * qset;
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = 0;
-
+	
+	if(down_interruptible(&dev->sem))
+	{
+		return -ERESTARTSYS;
+	}
+	
 	if(*f_pos >= dev->size)
 	{
-		printk(KERN_ALERT "*fpos >= dev->size\n");
 		goto out;
 	}
 
@@ -119,11 +129,14 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
 	
-	/*dptr = scull_follow(dev, item);
+	dptr = scull_follow(dev, item);
+	
 	if(dptr == NULL ||!dptr->data || !dptr->data[s_pos])
-		goto out;*/
+		goto out;
+		
 	if(count > quantum - q_pos)
 		count = quantum - q_pos;
+		
 	if(copy_to_user(buf, dptr->data[s_pos] + q_pos, count))
 	{
 		retval = -EFAULT;
@@ -134,46 +147,79 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 
 	out:
 		printk(KERN_ALERT "retval = %zu\n",retval);
+		up(&dev->sem);
 		return retval;
 }
 
 ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, loff_t *f_pos)
 {
-	printk(KERN_ALERT "Writing to device...\n");
+	printk(KERN_ALERT "The driver has been called with write()\n");
 	struct scull_dev *dev = filp->private_data;
 	struct scull_qset *dptr = dev->data;
 	int quantum = dev->quantum, qset = dev->qset;
 	int itemsize = quantum * qset;
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM;
-	printk(KERN_ALERT "Performing calculations...\n");
+	
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
-
-	printk(KERN_ALERT "Entering if-statements...count = %zu quantum = %d q_pos = %d\n",count, quantum, q_pos);
 	
+	printk(KERN_ALERT "item=%d s_pos=%d q_pos=%d rest=%d\n", item, s_pos, q_pos, rest);
+	
+	if(down_interruptible(&dev->sem))
+	{
+		return -ERESTARTSYS;
+	}
+	
+	dptr = scull_follow(dev, item);
+	if(dptr == NULL)
+		goto out;
+	if(!dptr->data){
+		dptr->data = kmalloc(qset * sizeof(char *), GFP_KERNEL);
+		if(!dptr->data)
+			goto out;
+		memset(dptr->data, 0, qset * sizeof(char *));
+	}
+	if(!dptr->data[s_pos]){
+		dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
+		if(!dptr->data[s_pos])
+			goto out;
+	}
+
+	printk(KERN_ALERT "count=%ld\n", count);
+
 	if(count > quantum - q_pos)
 	{
-		printk(KERN_ALERT "inside if\n");
 		count = quantum - q_pos;
 	}
+
 	printk(KERN_ALERT "finished first if\n");
-	/*if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
+	
+	if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
 	{
-		printk(KERN_ALERT "next if\n");
 		retval = -EFAULT;
 		goto out;
-	}*/
+	}
 
 	*f_pos += count;
 	retval = count;
-
+	
+	printk(KERN_ALERT "f_pos=%llu count=%ld\n", f_pos, count);
+	
 	if(dev->size < *f_pos)
 		dev->size = *f_pos;
 
 	out:
+		up(&dev->sem);
 		return retval;
+}
+
+static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
+{
+	printk(KERN_ALERT "ioctl called\n");
+	if(_IOC_TYPE(cmd) != MYDRBASE) return -EINVAL;
+	return 0;
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -188,6 +234,7 @@ struct file_operations scull_fops =
 	.read = scull_read,
 	.write = scull_write,
 	.release = scull_release,
+	.unlocked_ioctl = scull_ioctl,
 };
 
 static void scull_setup_cdev(struct scull_dev *dev, int index)
@@ -225,8 +272,9 @@ static int __init hello_init(void)
 	memset(scull_devices, 0, 1 * sizeof(struct scull_dev));
 	for(i = 0; i < 1; i++)
 	{
-		scull_devices[i].quantum = 4000;
-		scull_devices[i].qset = 1000;
+		scull_devices[i].quantum = QUANTUM;
+		scull_devices[i].qset = QSET;
+		sema_init(&scull_devices[i].sem, 1);
 		scull_setup_cdev(&scull_devices[i], i);
 	}
 	printGreeting(dev_major);
