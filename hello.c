@@ -141,7 +141,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 {
 	printk(KERN_ALERT "Writing to device...\n");
 	struct scull_dev *dev = filp->private_data;
-	struct scull_qset *dptr;
+	struct scull_qset *dptr = dev->data;
 	int quantum = dev->quantum, qset = dev->qset;
 	int itemsize = quantum * qset;
 	int item, s_pos, q_pos, rest;
@@ -159,12 +159,12 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 		count = quantum - q_pos;
 	}
 	printk(KERN_ALERT "finished first if\n");
-	if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
+	/*if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
 	{
 		printk(KERN_ALERT "next if\n");
 		retval = -EFAULT;
 		goto out;
-	}
+	}*/
 
 	*f_pos += count;
 	retval = count;
