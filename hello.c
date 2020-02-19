@@ -205,7 +205,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
 static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-	char msgToUser[6] = "World";
+	char msgToUser[100] = "I am fine, thank you for asking!";
 	int ret_val;
 	printk(KERN_ALERT "ioctl called\n");
 	printk(KERN_ALERT "arg = %lu\n", arg);
