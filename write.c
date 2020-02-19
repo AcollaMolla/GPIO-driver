@@ -25,8 +25,9 @@ int main()
 	else
 	{
 		printf("Trying ioctl()...\n");
+				printf("buf1 = %s\n", buf1);
 		long ret_val = ioctl(f, SCULL_IOC_MSG, &buf1);
-		printf("ioctl() returned: %ld", ret_val);
+		printf("ioctl() returned: %ld\n", ret_val);
 		printf("buf1 = %s\n", buf1);
 		printf("Succeeded opening device\n Write you'r data to the device: ");
 		fgets(msg, 1000, stdin);
