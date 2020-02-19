@@ -206,6 +206,7 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	char msgToUser[100] = "I am fine, thank you for asking!";
+	char msgFromUser[100] = {0};
 	int ret_val;
 	printk(KERN_ALERT "ioctl called\n");
 	printk(KERN_ALERT "arg = %lu\n", arg);
@@ -220,6 +221,12 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			printk(KERN_ALERT "Responding with made-up state\n");
 			ret_val = copy_to_user((char *)arg, msgToUser, sizeof(msgToUser));
 			printk(KERN_ALERT "ret_val = %d\n", ret_val);
+		break;
+		case SCULL_MESSAGE_FROM_USER:
+			printk("Receiving message from user\n");
+			ret_val = copy_from_user(msgFromUser, (char *)arg, sizeof(msgFromUser));
+			printk(KERN_ALERT "ret_val=%d\n", ret_val);
+			printk(KERN_ALERT "msgFromUser=%s\n", msgFromUser);
 		break;
 	}
 	return 0;
