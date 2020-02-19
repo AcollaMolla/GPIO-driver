@@ -181,8 +181,6 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	{
 		count = quantum - q_pos;
 	}
-
-	printk(KERN_ALERT "finished first if\n");
 	
 	if(copy_from_user(dptr->data[s_pos] + q_pos, buf, count))
 	{
@@ -209,10 +207,8 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	char msgFromUser[100] = {0};
 	int ret_val;
 	printk(KERN_ALERT "ioctl called\n");
-	printk(KERN_ALERT "arg = %lu\n", arg);
 	if(_IOC_TYPE(cmd) != MYDRBASE) 
 		return -EINVAL;
-	printk(KERN_ALERT "cmd == MYDRBASE\n");
 	switch(cmd){
 		case SCULL_RESET:
 			printk(KERN_ALERT "Pretending to reset driver...\n");
