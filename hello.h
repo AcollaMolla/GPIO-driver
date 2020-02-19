@@ -1,4 +1,18 @@
+#include <linux/module.h>
+#include <linux/kernel.h>
+#include <linux/init.h>
+#include <linux/sched.h>
+#include <linux/types.h>
+#include <linux/kdev_t.h>
+#include <linux/fs.h>
+#include <linux/cdev.h>
+#include <linux/slab.h>
+#include <asm/uaccess.h>
+#include <linux/uaccess.h>
+#include <linux/semaphore.h>
+
 #define MYDRBASE 'k'
+
 const int QUANTUM = 4000;
 const int QSET = 1000;
 
