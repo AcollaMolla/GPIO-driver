@@ -8,6 +8,8 @@
 
 #define SCULL_IOC_MAGIC 'k'
 #define SCULL_GETSTATE _IO(SCULL_IOC_MAGIC, 1)
+#define SCULL_MESSAGE_FROM_USER _IO(SCULL_IOC_MAGIC, 2)
+
 int main()
 {
 	int f = open("/dev/scull", O_RDWR);

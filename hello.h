@@ -14,6 +14,7 @@
 #define MYDRBASE 'k'
 #define SCULL_RESET _IO(MYDRBASE, 0)
 #define SCULL_GETSTATE _IO(MYDRBASE, 1)
+#define SCULL_MESSAGE_FROM_USER _IO(MYDRBASE, 2)
 
 const int QUANTUM = 4000;
 const int QSET = 1000;
