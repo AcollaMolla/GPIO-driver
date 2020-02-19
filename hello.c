@@ -216,6 +216,7 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	switch(cmd){
 		case SCULL_RESET:
 			printk(KERN_ALERT "Pretending to reset driver...\n");
+			return 123;
 		break;
 		case SCULL_GETSTATE:
 			printk(KERN_ALERT "Responding with made-up state\n");
