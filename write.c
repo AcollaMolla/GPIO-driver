@@ -13,7 +13,6 @@ int main()
 	int f = open("/dev/scull", O_RDWR);
 	char msg[1000] = "A really long hello world message. Can it write more than 3 characters?";
 	char buf[5] = "Hello";
-	char buf1[5];
 	size_t nbytes;
 	ssize_t bytes_written=0;
 	int fd;
@@ -25,10 +24,9 @@ int main()
 	else
 	{
 		printf("Trying ioctl()...\n");
-				printf("buf1 = %s\n", buf1);
-		long ret_val = ioctl(f, SCULL_IOC_MSG, &buf1);
+		long ret_val = ioctl(f, SCULL_IOC_MSG, &buf);
 		printf("ioctl() returned: %ld\n", ret_val);
-		printf("buf1 = %s\n", buf1);
+		printf("buf = %s\n", buf);
 		printf("Succeeded opening device\n Write you'r data to the device: ");
 		fgets(msg, 1000, stdin);
 		bytes_written = write(f, msg, sizeof(msg));

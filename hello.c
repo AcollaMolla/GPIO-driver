@@ -205,11 +205,10 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 
 static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
-	char msgToUser[6] = "World\n";
+	char msgToUser[6] = "World";
 	int ret_val;
 	printk(KERN_ALERT "ioctl called\n");
 	printk(KERN_ALERT "arg = %lu\n", arg);
-	printk(KERN_ALERT "value of arg = %ln\n", arg);
 	if(_IOC_TYPE(cmd) != MYDRBASE) 
 		return -EINVAL;
 	printk(KERN_ALERT "cmd == MYDRBASE\n");
@@ -219,7 +218,7 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		break;
 		case SCULL_GETSTATE:
 			printk(KERN_ALERT "Responding with made-up state\n");
-			ret_val = copy_to_user((char *)arg, msgToUser, 5);
+			ret_val = copy_to_user((char *)arg, msgToUser, sizeof(msgToUser));
 			printk(KERN_ALERT "ret_val = %d\n", ret_val);
 		break;
 	}
