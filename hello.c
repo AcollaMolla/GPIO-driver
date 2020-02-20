@@ -225,6 +225,8 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			printk(KERN_ALERT "ret_val=%d\n", ret_val);
 			printk(KERN_ALERT "msgFromUser=%s\n", msgFromUser);
 		break;
+		default:
+			return -ENOTTY;
 	}
 	return 0;
 }
