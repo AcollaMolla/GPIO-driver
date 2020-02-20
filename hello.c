@@ -149,6 +149,8 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM;
 	
+	printk(KERN_ALERT "dev->size = %lu\n", dev->size);
+	
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
