@@ -211,6 +211,8 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		return -EINVAL;
 	switch(cmd){
 		case SCULL_RESET:
+			if(!capable(CAP_SYS_ADMIN))
+				return -EPERM;
 			printk(KERN_ALERT "Pretending to reset driver...\n");
 			return 123;
 		break;
