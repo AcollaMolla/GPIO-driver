@@ -235,6 +235,12 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 	return 0;
 }
 
+void allocateIOPort(void)
+{
+	printk(KERN_ALERT "Requesting IO memory region\n");
+	request_region(START, LEN, "scull");
+}
+
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
@@ -292,6 +298,7 @@ static int __init hello_init(void)
 	}
 	printGreeting(dev_major);
 	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
+	allocateIOPort();
 	return 0;
 }
 
@@ -305,6 +312,7 @@ static void __exit hello_exit(void)
 		kfree(scull_devices);
 	}
 	unregister_chrdev_region(dev, 1);
+	release_region(START, LEN);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
 

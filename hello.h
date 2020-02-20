@@ -18,6 +18,9 @@
 #define SCULL_GETSTATE _IO(MYDRBASE, 1)
 #define SCULL_MESSAGE_FROM_USER _IO(MYDRBASE, 2)
 
+const unsigned long START = 0x4100;
+const unsigned long LEN = 0x90;
+
 const int QUANTUM = 4000;
 const int QSET = 1000;
 
