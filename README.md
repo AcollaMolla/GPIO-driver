@@ -25,10 +25,10 @@ All printk() statements in the driver will be visible in the log.
 
 Optionally, compile and run:
 ```
-gcc test.c -o test
-sudo ./test
+gcc write.c -o write
+sudo ./write
 ```
-The program *test* will make the call *open("/dev/scull")* which will trigger the *printk()* statement in the *scull_open()* function in hello.c and get printed to */var/log/kern.log*
+The program *write* will make the call *open("/dev/scull")* which will trigger the *printk()* statement in the *scull_open()* function in hello.c and get printed to */var/log/kern.log*. It is also possible to call ioctl() and scull_write() from *write*.
 
 Remove the inserted module using
 ```
