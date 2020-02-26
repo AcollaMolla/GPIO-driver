@@ -12,6 +12,7 @@
 #include <linux/semaphore.h>
 #include <linux/sched.h>
 #include <linux/ioport.h>
+#include <linux/gpio.h>
 
 #define MYDRBASE 'k'
 #define SCULL_RESET _IO(MYDRBASE, 0)
