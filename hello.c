@@ -237,8 +237,23 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 void allocateIOPort(void)
 {
-	printk(KERN_ALERT "Requesting IO memory region\n");
-	request_region(START, LEN, "scull");
+	printk(KERN_ALERT "Allocating IO port...\n");
+	int result = gpio_request(LED, "Hello world");
+	if(result < 0)
+		printk(KERN_ALERT "Failed requesting gpio\n");
+	printk(KERN_ALERT "result= %d\n", result);
+	/*result = gpio_direction_output(LED, 0x1);
+	if(result < 0)
+		printk(KERN_ALERT "Failed setting gpio as output\n");
+	*/
+//	printk(KERN_ALERT "Gpio direction output set returned %d\n", result);
+	gpio_set_value(LED, 1);
+	printk(KERN_ALERT "Gpio set value to 1\n");
+	result = gpio_direction_input(LED);
+	if(result < 0)
+		printk(KERN_ALERT "Cant read input value\n");
+	int value = gpio_get_value(LED);
+	printk(KERN_ALERT "Value of GPIO pin %d is %d\n", LED, value);
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -312,7 +327,8 @@ static void __exit hello_exit(void)
 		kfree(scull_devices);
 	}
 	unregister_chrdev_region(dev, 1);
-	release_region(START, LEN);
+	//release_region(START, LEN);
+	gpio_free(LED);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
 
