@@ -1,5 +1,5 @@
 # HelloWorldDriver
-A simple driver module for the Linux kernel. This project is following the tutorials in the book *Linux Device Drivers* and will evolve accordingly to the tasks in that book.
+A simple driver module for the Linux kernel. This project is following the tutorials in the book *Linux Device Drivers* and will evolve accordingly to the tasks in that book. When running this driver on a Raspberry Pi it should be able to communicate wih the GPIO.
 
 First of all, install the Linux headers on you're device:
 ```
