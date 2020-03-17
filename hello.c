@@ -238,22 +238,34 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 void allocateIOPort(void)
 {
 	printk(KERN_ALERT "Allocating IO port...\n");
-	int result = gpio_request(LED, "Hello world");
+	int result, currentValue;
+	result = gpio_is_valid(LED);
+	if(result < 0)
+		printk(KERN_ALERT "ERROR gpio num %d is invalid %d\n", LED, result);
+	printk(KERN_ALERT "gpio_is_valid() successfully returned %d\n", result);
+	result = gpio_request(LED, "Hello");
 	if(result < 0)
 		printk(KERN_ALERT "Failed requesting gpio\n");
-	printk(KERN_ALERT "result= %d\n", result);
-	/*result = gpio_direction_output(LED, 0x1);
+	printk(KERN_ALERT "gpio_request() returned result= %d\n", result);
+	printk(KERN_ALERT "Setting direction input...\n");
+	result = gpio_direction_input(LED);
 	if(result < 0)
-		printk(KERN_ALERT "Failed setting gpio as output\n");
-	*/
-//	printk(KERN_ALERT "Gpio direction output set returned %d\n", result);
+		printk(KERN_ALERT "ERROR: gpio_direction_input() failed %d\n", result);
+	printk(KERN_ALERT "gpio_direction_input() succesfully set up %d\n", result);
+	currentValue = gpio_get_value(LED);
+	printk(KERN_ALERT "Read value %d from GPIO no %d\n", currentValue, LED);
+	printk(KERN_ALERT "Setting GPIO in output mode...\n");
+	result = gpio_direction_output(LED, 0);
+	if(result < 0)
+		printk(KERN_ALERT "Failed setting gpio as output %d\n", result);
+	printk(KERN_ALERT "Gpio direction output set returned %d\n", result);
 	gpio_set_value(LED, 1);
 	printk(KERN_ALERT "Gpio set value to 1\n");
-	result = gpio_direction_input(LED);
+	/*result = gpio_direction_input(LED);
 	if(result < 0)
 		printk(KERN_ALERT "Cant read input value\n");
 	int value = gpio_get_value(LED);
-	printk(KERN_ALERT "Value of GPIO pin %d is %d\n", LED, value);
+	printk(KERN_ALERT "Value of GPIO pin %d is %d\n", LED, value);*/
 }
 
 int scull_release(struct inode *inode, struct file *filp)
