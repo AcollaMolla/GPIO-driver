@@ -1,5 +1,6 @@
 # HelloWorldDriver
-A simple driver module for the Linux kernel. This project is following the tutorials in the book *Linux Device Drivers* and will evolve accordingly to the tasks in that book. When running this driver on a Raspberry Pi it should be able to communicate wih the GPIO.
+A simple driver module for the Linux kernel. This project is following the tutorials in the book *Linux Device Drivers* and will evolve accordingly to the tasks in that book.
+When loading this driver and calling it from *write.c* it will alternating power output on GPIO pin 27. If connecting a LED to GPIO pin 27 it will blink.
 
 First of all, install the Linux headers on you're device:
 ```
