@@ -21,7 +21,7 @@
 
 const unsigned long START = 0x20200000;
 const unsigned long LEN = 0x40;
-const unsigned int LED = 27;
+const unsigned int LED = 16;
 
 const int QUANTUM = 4000;
 const int QSET = 1000;
