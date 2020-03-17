@@ -207,16 +207,20 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	char msgToUser[100] = "I am fine, thank you for asking!";
 	char msgFromUser[100] = {0};
-	int ret_val;
+	int ret_val, i, light = 1;
 	printk(KERN_ALERT "ioctl called\n");
 	if(_IOC_TYPE(cmd) != MYDRBASE) 
 		return -EINVAL;
 	switch(cmd){
-		case SCULL_RESET:
+		case SCULL_BLINK:
 			if(!capable(CAP_SYS_ADMIN))
 				return -EPERM;
 			printk(KERN_ALERT "Turning on LED...\n");
-			gpio_set_value(LED, 1);
+			for(i=0;i<120;i++){
+				gpio_set_value(LED, light);
+				usleep_range(125000, 125001);
+				light = !light;
+			}
 			return 123;
 		break;
 		case SCULL_GETSTATE:

@@ -7,7 +7,7 @@
 #include <sys/ioctl.h>
 
 #define SCULL_IOC_MAGIC 'k'
-#define SCULL_RESET _IO(SCULL_IOC_MAGIC, 0)
+#define SCULL_BLINK _IO(SCULL_IOC_MAGIC, 0)
 #define SCULL_GETSTATE _IO(SCULL_IOC_MAGIC, 1)
 #define SCULL_MESSAGE_FROM_USER _IO(SCULL_IOC_MAGIC, 2)
 
@@ -30,17 +30,17 @@ int main()
 	{
 		do{
 			printf("Make a choice:\n");
-			printf("(0) Turn LED ON\n");
+			printf("(0) Make LED blink\n");
 			printf("(1) Receive driver state\n");
 			printf("(2) Send message to driver\n");
 			printf("(9) Continue...\n");
 			scanf("%c%*c", &val);
 			switch(val){
 				case '0':
-					printf("Sending reset command to driver...");
-					ret_val = ioctl(f, SCULL_RESET);
-					if(ret_val == 123)printf("Successfully reset the driver!\n");
-					else printf("Can't reset the driver...\n");
+					printf("The LED will blink for 20 sec...");
+					ret_val = ioctl(f, SCULL_BLINK);
+					if(ret_val == 123)printf("Finished blinking!\n");
+					else printf("Cant't make the LED blink...\n");
 				break;
 			
 				case '1':
