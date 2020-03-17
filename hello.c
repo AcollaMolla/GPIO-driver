@@ -8,20 +8,8 @@ MODULE_VERSION("0.1");
 module_param(howmany, int, S_IRUGO);
 module_param(whom, charp, S_IRUGO);
 
-static void printGreeting(int major)
-{
-	int i = 0;
-	for(i=0;i<howmany;i++)
-	{
-		printk(KERN_ALERT "Hello %s\n", whom);
-	}
-	printk(KERN_ALERT "This process is named \"%s\" and has the pid %i\n MAJOR=%d\n", current->comm, current->pid, major);
-}
-
-static int AddIntegers(int a, int b)
-{
-	int sum = a + b;
-	return sum;
+void printGreeting(void){
+	printk(KERN_ALERT "Hello World Driver loaded into kernel tree!");
 }
 
 int scull_trim(struct scull_dev *dev)
@@ -215,13 +203,13 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case SCULL_BLINK:
 			if(!capable(CAP_SYS_ADMIN))
 				return -EPERM;
-			printk(KERN_ALERT "Turning on LED...\n");
+			printk(KERN_ALERT "Blinking LED...\n");
 			for(i=0;i<120;i++){
 				gpio_set_value(LED, light);
 				usleep_range(125000, 125001);
 				light = !light;
 			}
-			return 123;
+			return 1;
 		break;
 		case SCULL_GETSTATE:
 			printk(KERN_ALERT "Responding with made-up state\n");
@@ -242,26 +230,19 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 void allocateIOPort(void)
 {
-	printk(KERN_ALERT "Allocating IO port...\n");
-	int result, currentValue;
-	result = gpio_is_valid(LED);
-	if(result < 0)
-		printk(KERN_ALERT "ERROR gpio num %d is invalid %d\n", LED, result);
-	printk(KERN_ALERT "gpio_is_valid() successfully returned %d\n", result);
-	result = gpio_request(LED, "Hello");
-	if(result < 0)
-		printk(KERN_ALERT "Failed requesting gpio\n");
-	printk(KERN_ALERT "gpio_request() returned result= %d\n", result);
-	printk(KERN_ALERT "Setting direction input...\n");
-	result = gpio_direction_output(LED, 0);
-	if(result < 0)
-		printk(KERN_ALERT "ERROR: gpio_direction_output() failed %d\n", result);
-	printk(KERN_ALERT "gpio_direction_output() returned %d \n", result);
-	/*result = gpio_direction_input(LED);
-	if(result < 0)
-		printk(KERN_ALERT "Cant read input value\n");
-	int value = gpio_get_value(LED);
-	printk(KERN_ALERT "Value of GPIO pin %d is %d\n", LED, value);*/
+	printk(KERN_ALERT "Allocating GPIO port...\n");
+	int err, currentValue;
+	err = gpio_is_valid(LED);
+	if(err < 0)
+		printk(KERN_ALERT "ERROR GPIO pin %d is invalid. ERRNO: %d\n", LED, err);
+	
+	err = gpio_request(LED, "Hello_World");
+	if(err < 0)
+		printk(KERN_ALERT "Failed requesting GPIO pin %d. ERRNO: %d\n", LED, err);
+	
+	err = gpio_direction_output(LED, 0);
+	if(err < 0)
+		printk(KERN_ALERT "Can't set GPIO pin %d as output. ERRNO %d\n",LED, err);
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -294,7 +275,6 @@ static void scull_setup_cdev(struct scull_dev *dev, int index)
 static int __init hello_init(void)
 {
 	dev_t dev = 0;
-	int sum = AddIntegers(1,1);
 	int result = 0, i=0;
 	result = alloc_chrdev_region(&dev, dev_minor, 1, "scull");
 	dev_major = MAJOR(dev);
@@ -319,8 +299,8 @@ static int __init hello_init(void)
 		sema_init(&scull_devices[i].sem, 1);
 		scull_setup_cdev(&scull_devices[i], i);
 	}
-	printGreeting(dev_major);
-	printk(KERN_ALERT "AddIntegers() returned %d\n", sum);
+
+	printGreeting();
 	allocateIOPort();
 	return 0;
 }
