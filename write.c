@@ -30,7 +30,7 @@ int main()
 	{
 		do{
 			printf("Make a choice:\n");
-			printf("(0) Resetdriver (not actually working)\n");
+			printf("(0) Turn LED ON\n");
 			printf("(1) Receive driver state\n");
 			printf("(2) Send message to driver\n");
 			printf("(9) Continue...\n");

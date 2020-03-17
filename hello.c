@@ -215,7 +215,8 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case SCULL_RESET:
 			if(!capable(CAP_SYS_ADMIN))
 				return -EPERM;
-			printk(KERN_ALERT "Pretending to reset driver...\n");
+			printk(KERN_ALERT "Turning on LED...\n");
+			gpio_set_value(LED, 1);
 			return 123;
 		break;
 		case SCULL_GETSTATE:
@@ -248,19 +249,10 @@ void allocateIOPort(void)
 		printk(KERN_ALERT "Failed requesting gpio\n");
 	printk(KERN_ALERT "gpio_request() returned result= %d\n", result);
 	printk(KERN_ALERT "Setting direction input...\n");
-	result = gpio_direction_input(LED);
-	if(result < 0)
-		printk(KERN_ALERT "ERROR: gpio_direction_input() failed %d\n", result);
-	printk(KERN_ALERT "gpio_direction_input() succesfully set up %d\n", result);
-	currentValue = gpio_get_value(LED);
-	printk(KERN_ALERT "Read value %d from GPIO no %d\n", currentValue, LED);
-	printk(KERN_ALERT "Setting GPIO in output mode...\n");
 	result = gpio_direction_output(LED, 0);
 	if(result < 0)
-		printk(KERN_ALERT "Failed setting gpio as output %d\n", result);
-	printk(KERN_ALERT "Gpio direction output set returned %d\n", result);
-	gpio_set_value(LED, 1);
-	printk(KERN_ALERT "Gpio set value to 1\n");
+		printk(KERN_ALERT "ERROR: gpio_direction_output() failed %d\n", result);
+	printk(KERN_ALERT "gpio_direction_output() returned %d \n", result);
 	/*result = gpio_direction_input(LED);
 	if(result < 0)
 		printk(KERN_ALERT "Cant read input value\n");
