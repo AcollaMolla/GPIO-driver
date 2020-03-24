@@ -326,7 +326,7 @@ static void __exit hello_exit(void)
 		kfree(scull_devices);
 	}
 	unregister_chrdev_region(dev, 1);
-	//release_region(START, LEN);
+	release_mem_region(GPIO_BASE, GPIO_LENGTH);
 	gpio_free(LED);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
