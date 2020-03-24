@@ -50,3 +50,9 @@ struct scull_dev
 	struct cdev cdev;
 };
 struct scull_dev *scull_devices;
+
+struct gpio_dev
+{
+	unsigned int base_addr;
+};
+struct gpio_dev *gpio_device;

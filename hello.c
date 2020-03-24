@@ -245,6 +245,16 @@ void allocateIOPort(void)
 		printk(KERN_ALERT "Can't set GPIO pin %d as output. ERRNO %d\n",LED, err);
 }
 
+void allocateIOMemory(void)
+{
+	if(request_mem_region(GPIO_BASE, GPIO_LENGTH, "Acolla Molla's GPIO driver") == NULL)
+	{
+		printk(KERN_ALERT "ERROR: Can not allocate iomem for GPIO\n");
+		return;
+	}
+	printk(KERN_ALERT "iomem for GPIO is available. Proceeding to request mem region\n");
+}
+
 int scull_release(struct inode *inode, struct file *filp)
 {
 	return 0;
@@ -302,6 +312,7 @@ static int __init hello_init(void)
 
 	printGreeting();
 	allocateIOPort();
+	allocateIOMemory();
 	return 0;
 }
 
