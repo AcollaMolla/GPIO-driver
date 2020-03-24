@@ -255,6 +255,7 @@ void allocateIOMemory(void)
 	printk(KERN_ALERT "iomem for GPIO is available. Proceeding to request mem region\n");
 	gpio_device.map = ioremap(GPIO_BASE, GPIO_LENGTH);
 	gpio_device.addr = (volatile unsigned int *)gpio_device.map;
+	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
 }
 
 int scull_release(struct inode *inode, struct file *filp)
