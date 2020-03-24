@@ -54,6 +54,7 @@ struct scull_dev *scull_devices;
 
 struct gpio_dev
 {
-	void *base_addr;
+	void *map;
+	volatile unsigned int *addr;
 };
-struct gpio_dev gpio_device;
+struct gpio_dev gpio_device = {GPIO_BASE};
