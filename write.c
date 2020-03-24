@@ -8,7 +8,7 @@
 
 #define SCULL_IOC_MAGIC 'k'
 #define SCULL_BLINK _IO(SCULL_IOC_MAGIC, 0)
-#define SCULL_GETSTATE _IO(SCULL_IOC_MAGIC, 1)
+#define SCULL_BLINK_IOMEM _IO(SCULL_IOC_MAGIC, 1)
 #define SCULL_MESSAGE_FROM_USER _IO(SCULL_IOC_MAGIC, 2)
 
 int main()
@@ -31,7 +31,7 @@ int main()
 		do{
 			printf("Make a choice:\n");
 			printf("(0) Make LED blink\n");
-			printf("(1) Receive driver state\n");
+			printf("(1) Make LED blink using IO Memory\n");
 			printf("(2) Send message to driver\n");
 			printf("(9) Continue...\n");
 			scanf("%c%*c", &val);
@@ -44,8 +44,8 @@ int main()
 				break;
 			
 				case '1':
-					printf("Asking device for status\n");
-					ret_val = ioctl(f, SCULL_GETSTATE, &buf);
+					printf("Making LED blink using IO Memory\n");
+					ret_val = ioctl(f, SCULL_BLINK_IOMEM, &buf);
 					printf("Received status: %s\n", buf);
 				break;
 			

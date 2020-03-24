@@ -211,7 +211,7 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			}
 			return 1;
 		break;
-		case SCULL_GETSTATE:
+		case SCULL_BLINK_IOMEM:
 			printk(KERN_ALERT "Responding with made-up state\n");
 			ret_val = copy_to_user((char *)arg, msgToUser, sizeof(msgToUser));
 			printk(KERN_ALERT "ret_val = %d\n", ret_val);
