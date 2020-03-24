@@ -253,6 +253,7 @@ void allocateIOMemory(void)
 		return;
 	}
 	printk(KERN_ALERT "iomem for GPIO is available. Proceeding to request mem region\n");
+	gpio_device.base_addr = ioremap(GPIO_BASE, GPIO_LENGTH);
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -327,6 +328,7 @@ static void __exit hello_exit(void)
 	}
 	unregister_chrdev_region(dev, 1);
 	release_mem_region(GPIO_BASE, GPIO_LENGTH);
+	iounmap(GPIO_BASE);
 	gpio_free(LED);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }

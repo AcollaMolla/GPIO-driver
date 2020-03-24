@@ -14,6 +14,7 @@
 #include <linux/ioport.h>
 #include <linux/gpio.h>
 #include <linux/delay.h>
+#include <asm/io.h>
 
 #define MYDRBASE 'k'
 #define SCULL_BLINK _IO(MYDRBASE, 0)
@@ -53,6 +54,6 @@ struct scull_dev *scull_devices;
 
 struct gpio_dev
 {
-	unsigned int base_addr;
+	void *base_addr;
 };
-struct gpio_dev *gpio_device;
+struct gpio_dev gpio_device;
