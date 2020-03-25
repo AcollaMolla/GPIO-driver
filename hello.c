@@ -1,6 +1,4 @@
 #include "hello.h"
-#define OUT_GPIO(g) *(gpio_device.addr + ((g)/10)) |= (1<<(((g)%10)*3))
-#define GPIO_SET *(gpio_device.addr + 7)
 MODULE_LICENSE("GPL");
 MODULE_AUTHOR("ANTON");
 MODULE_DESCRIPTION("HELLO WORLD");
@@ -258,7 +256,7 @@ void allocateIOMemory(void)
 	gpio_device.map = ioremap(GPIO_BASE, GPIO_LENGTH);
 	gpio_device.addr = (volatile unsigned int *)gpio_device.map;
 	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
-	OUT_GPIO(LED);
+	GPIO_OUTPUT(LED);
 	printk(KERN_ALERT "make GPIO_WRITE()\n");
 	GPIO_SET = 1 << LED;
 	printk(KERN_ALERT "Set GPIO pin %d to 1)\n", LED);

@@ -57,3 +57,6 @@ struct gpio_dev
 	volatile unsigned int *addr;
 };
 struct gpio_dev gpio_device = {GPIO_BASE};
+
+#define GPIO_OUTPUT(g) *(gpio_device.addr + ((LED)/10)) |= (1<<(((LED) % 10) *3))
+#define GPIO_SET *(gpio_device.addr + 7)
