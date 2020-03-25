@@ -211,9 +211,13 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 			return 1;
 		break;
 		case SCULL_BLINK_IOMEM:
-			printk(KERN_ALERT "Responding with made-up state\n");
+			printk(KERN_ALERT "Turn LED on using memory-mapped IO\n");
+			allocateIOMemory();
+			GPIO_OUTPUT(LED);
+			GPIO_SET = 1 << LED;
 			ret_val = copy_to_user((char *)arg, msgToUser, sizeof(msgToUser));
 			printk(KERN_ALERT "ret_val = %d\n", ret_val);
+			deallocateIO(0);
 		break;
 		case SCULL_MESSAGE_FROM_USER:
 			printk("Receiving message from user\n");
@@ -256,10 +260,28 @@ void allocateIOMemory(void)
 	gpio_device.map = ioremap(GPIO_BASE, GPIO_LENGTH);
 	gpio_device.addr = (volatile unsigned int *)gpio_device.map;
 	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
-	GPIO_OUTPUT(LED);
-	printk(KERN_ALERT "make GPIO_WRITE()\n");
-	GPIO_SET = 1 << LED;
-	printk(KERN_ALERT "Set GPIO pin %d to 1)\n", LED);
+	GPIO_INPUT(LED);
+	//GPIO_OUTPUT(LED);
+	//printk(KERN_ALERT "make GPIO_WRITE()\n");
+	//GPIO_SET = 1 << LED;
+	//printk(KERN_ALERT "Set GPIO pin %d to 1)\n", LED);
+}
+
+void deallocateIO(int type)
+{
+	if(type == 0)
+	{
+		release_mem_region(GPIO_BASE, GPIO_LENGTH);
+		if(gpio_device.addr)
+		{
+			iounmap(gpio_device.addr);
+		}
+	}
+	else if(type == 1)
+	{
+		release_mem_region(GPIO_BASE, GPIO_LENGTH);
+		gpio_free(LED);
+	}
 }
 
 int scull_release(struct inode *inode, struct file *filp)
@@ -318,8 +340,8 @@ static int __init hello_init(void)
 	}
 
 	printGreeting();
-	allocateIOPort();
-	allocateIOMemory();
+	//allocateIOPort();
+	//allocateIOMemory();
 	return 0;
 }
 
@@ -332,13 +354,13 @@ static void __exit hello_exit(void)
 		printk(KERN_ALERT "Freeing allocated memory\n");
 		kfree(scull_devices);
 	}
-	if(gpio_device.addr)
+	/*if(gpio_device.addr)
 	{
 		iounmap(gpio_device.addr);
-	}
+	}*/
 	unregister_chrdev_region(dev, 1);
-	release_mem_region(GPIO_BASE, GPIO_LENGTH);
-	gpio_free(LED);
+	//release_mem_region(GPIO_BASE, GPIO_LENGTH);
+	//gpio_free(LED);
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
 

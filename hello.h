@@ -58,5 +58,11 @@ struct gpio_dev
 };
 struct gpio_dev gpio_device = {GPIO_BASE};
 
-#define GPIO_OUTPUT(g) *(gpio_device.addr + ((LED)/10)) |= (1<<(((LED) % 10) *3))
+#define GPIO_INPUT(g) *(gpio_device.addr + ((g)/10)) &= ~(7<<(((g) %10) *3))
+#define GPIO_OUTPUT(g) *(gpio_device.addr + ((g)/10)) |= (1<<(((g) % 10) *3))
 #define GPIO_SET *(gpio_device.addr + 7)
+
+//Function prototypes
+void allocateIOMemory(void);
+void allocateIOPort(void);
+void deallocateIO(int type);
