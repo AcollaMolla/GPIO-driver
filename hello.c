@@ -194,6 +194,7 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 {
 	char msgToUser[100] = "I am fine, thank you for asking!";
 	char msgFromUser[100] = {0};
+	int led_val;
 	int ret_val, i, light = 1;
 	printk(KERN_ALERT "ioctl called\n");
 	if(_IOC_TYPE(cmd) != MYDRBASE) 
@@ -213,8 +214,13 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 		case SCULL_BLINK_IOMEM:
 			printk(KERN_ALERT "Turn LED on using memory-mapped IO\n");
 			allocateIOMemory();
+			led_val = GPIO_READ(LED);
 			GPIO_OUTPUT(LED);
-			GPIO_SET = 1 << LED;
+			printk(KERN_ALERT "led_val is %d\n", led_val);
+			if(led_val == 0)
+				GPIO_SET = 1 << LED;
+			else
+				GPIO_CLR = 1 << LED;
 			ret_val = copy_to_user((char *)arg, msgToUser, sizeof(msgToUser));
 			printk(KERN_ALERT "ret_val = %d\n", ret_val);
 			deallocateIO(0);

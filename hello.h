@@ -58,9 +58,12 @@ struct gpio_dev
 };
 struct gpio_dev gpio_device = {GPIO_BASE};
 
+//GPIO controller macros
 #define GPIO_INPUT(g) *(gpio_device.addr + ((g)/10)) &= ~(7<<(((g) %10) *3))
 #define GPIO_OUTPUT(g) *(gpio_device.addr + ((g)/10)) |= (1<<(((g) % 10) *3))
 #define GPIO_SET *(gpio_device.addr + 7)
+#define GPIO_READ(g) *(gpio_device.addr + 13) &= (1<<(g))
+#define GPIO_CLR *(gpio_device.addr +10)
 
 //Function prototypes
 void allocateIOMemory(void);
