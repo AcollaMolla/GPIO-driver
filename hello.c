@@ -58,7 +58,7 @@ int scull_open(struct inode *inode, struct file *filp)
 	//Set up interrupt handler for GPIO
 	irq_num = gpio_to_irq(GPIO_BUTTON);
 	printk(KERN_ALERT "IRQ line for GPIO %d is %d\n", GPIO_BUTTON, irq_num);
-	errno = request_irq(irq_num, irq_handler, IRQF_TRIGGER_RISING, "GPIO_btn", NULL); //dev_id is NULL for now
+	errno = request_irq(irq_num, (irq_handler_t)irq_handler, IRQF_TRIGGER_RISING, "GPIO_btn", NULL); //dev_id is NULL for now
 	if(errno < 0)
 	{
 		printk(KERN_ALERT "Can't request IRQ line %d for GPIO pin %d\n", irq_num, GPIO_BUTTON);
