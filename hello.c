@@ -307,6 +307,9 @@ void deallocateIO(int type)
 
 int scull_release(struct inode *inode, struct file *filp)
 {
+	int irq_num;
+	irq_num = gpio_to_irq(GPIO_BUTTON);
+	free_irq(irq_num, NULL);
 	return 0;
 }
 
