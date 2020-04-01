@@ -58,7 +58,7 @@ int scull_open(struct inode *inode, struct file *filp)
 	//Set up interrupt handler for GPIO
 	irq_num = gpio_to_irq(GPIO_BUTTON);
 	printk(KERN_ALERT "IRQ line for GPIO %d is %d\n", GPIO_BUTTON, irq_num);
-	errno = request_irq(irq_num,(irq_handler_t)irq_handler, IRQF_TRIGGER_HIGH, "GPIO_btn", NULL); //dev_id is NULL for now
+	errno = request_irq(irq_num, irq_handler, IRQF_TRIGGER_RISING, "GPIO_btn", NULL); //dev_id is NULL for now
 	if(errno < 0)
 	{
 		printk(KERN_ALERT "Can't request IRQ line %d for GPIO pin %d\n", irq_num, GPIO_BUTTON);
@@ -253,19 +253,19 @@ static long scull_ioctl(struct file *filp, unsigned int cmd, unsigned long arg)
 
 void allocateIOPort(void)
 {
-	printk(KERN_ALERT "Allocating GPIO port...\n");
+	printk(KERN_ALERT "Allocating GPIO button port...\n");
 	int err, currentValue;
-	err = gpio_is_valid(LED);
+	err = gpio_is_valid(GPIO_BUTTON);
 	if(err < 0)
-		printk(KERN_ALERT "ERROR GPIO pin %d is invalid. ERRNO: %d\n", LED, err);
+		printk(KERN_ALERT "ERROR GPIO pin %d is invalid. ERRNO: %d\n", GPIO_BUTTON, err);
 	
-	err = gpio_request(LED, "Hello_World");
+	err = gpio_request(GPIO_BUTTON, "Hello_World");
 	if(err < 0)
-		printk(KERN_ALERT "Failed requesting GPIO pin %d. ERRNO: %d\n", LED, err);
+		printk(KERN_ALERT "Failed requesting GPIO pin %d. ERRNO: %d\n", GPIO_BUTTON, err);
 	
-	err = gpio_direction_output(LED, 0);
+	err = gpio_direction_input(GPIO_BUTTON);
 	if(err < 0)
-		printk(KERN_ALERT "Can't set GPIO pin %d as output. ERRNO %d\n",LED, err);
+		printk(KERN_ALERT "Can't set GPIO pin %d as input. ERRNO %d\n",GPIO_BUTTON, err);
 }
 
 void allocateIOMemory(void)
@@ -282,9 +282,6 @@ void allocateIOMemory(void)
 	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
 	GPIO_INPUT(LED);
 
-	//Use gpiolib for now
-	gpio_request(GPIO_BUTTON, "gpio_btn");
-	gpio_direction_input(GPIO_BUTTON);
 	//GPIO_OUTPUT(LED);
 	//printk(KERN_ALERT "make GPIO_WRITE()\n");
 	//GPIO_SET = 1 << LED;
@@ -364,7 +361,7 @@ static int __init hello_init(void)
 	}
 
 	printGreeting();
-	//allocateIOPort();
+	allocateIOPort();
 	//allocateIOMemory();
 	return 0;
 }
