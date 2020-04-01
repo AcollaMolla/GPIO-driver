@@ -46,7 +46,6 @@ static irqreturn_t irq_handler(int irq, void *dev_id)
 int scull_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev;
-	int irq_num, errno;
 	printk(KERN_ALERT "The driver has been called with open()\n");
 	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
 	filp->private_data = dev;
@@ -54,14 +53,6 @@ int scull_open(struct inode *inode, struct file *filp)
 	{
 		printk(KERN_ALERT "The driver has been opened in WRITE ONLY mode!\n");
 		scull_trim(dev);
-	}
-	//Set up interrupt handler for GPIO
-	irq_num = gpio_to_irq(GPIO_BUTTON);
-	printk(KERN_ALERT "IRQ line for GPIO %d is %d\n", GPIO_BUTTON, irq_num);
-	errno = request_irq(irq_num, (irq_handler_t)irq_handler, IRQF_TRIGGER_RISING, "GPIO_btn", NULL); //dev_id is NULL for now
-	if(errno < 0)
-	{
-		printk(KERN_ALERT "Can't request IRQ line %d for GPIO pin %d\n", irq_num, GPIO_BUTTON);
 	}
 	return 0;
 }
@@ -339,6 +330,7 @@ static int __init hello_init(void)
 {
 	dev_t dev = 0;
 	int result = 0, i=0;
+	int irq_line, errno;
 	result = alloc_chrdev_region(&dev, dev_minor, 1, "scull");
 	dev_major = MAJOR(dev);
 	if(result <0)
@@ -365,6 +357,14 @@ static int __init hello_init(void)
 
 	printGreeting();
 	allocateIOPort();
+	//interrupt handler for gpio button
+	irq_line = gpio_to_irq(GPIO_BUTTON);
+	printk(KERN_ALERT "GPIO pin %d use IRQ Line %d\n", GPIO_BUTTON, irq_line);
+	errno = request_irq(irq_line, (irq_handler_t)irq_handler, IRQF_TRIGGER_RISING, "GPIO_BTN", NULL);
+	if(errno < 0)
+	{
+		printk(KERN_ALERT "Cant assign IRQ Line %d to GPIO pin %d\n", irq_line, GPIO_BUTTON);
+	}
 	//allocateIOMemory();
 	return 0;
 }
