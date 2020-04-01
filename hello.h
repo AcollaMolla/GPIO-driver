@@ -15,6 +15,7 @@
 #include <linux/gpio.h>
 #include <linux/delay.h>
 #include <asm/io.h>
+#include <linux/interrupt.h>
 
 #define MYDRBASE 'k'
 #define SCULL_BLINK _IO(MYDRBASE, 0)
@@ -27,6 +28,7 @@
 const unsigned long START = 0x20200000;
 const unsigned long LEN = 0x40;
 const unsigned int LED = 16;
+const unsigned int GPIO_BUTTON = 15;
 const int QUANTUM = 4000;
 const int QSET = 1000;
 

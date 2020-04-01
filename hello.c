@@ -37,9 +37,16 @@ int scull_trim(struct scull_dev *dev)
 	return 0;
 }
 
+static irqreturn_t irq_handler(int irq, void *dev_id)
+{
+	printk(KERN_ALERT "Button pressed!\n");
+	return IRQ_HANDLED;
+}
+
 int scull_open(struct inode *inode, struct file *filp)
 {
 	struct scull_dev *dev;
+	int irq_num, errno;
 	printk(KERN_ALERT "The driver has been called with open()\n");
 	dev = container_of(inode->i_cdev, struct scull_dev, cdev);
 	filp->private_data = dev;
@@ -48,7 +55,14 @@ int scull_open(struct inode *inode, struct file *filp)
 		printk(KERN_ALERT "The driver has been opened in WRITE ONLY mode!\n");
 		scull_trim(dev);
 	}
-	printk(KERN_ALERT "hello_scull was called with .open()!!\n");
+	//Set up interrupt handler for GPIO
+	irq_num = gpio_to_irq(GPIO_BUTTON);
+	printk(KERN_ALERT "IRQ line for GPIO %d is %d\n", GPIO_BUTTON, irq_num);
+	errno = request_irq(irq_num,(irq_handler_t)irq_handler, IRQF_TRIGGER_HIGH, "GPIO_btn", NULL); //dev_id is NULL for now
+	if(errno < 0)
+	{
+		printk(KERN_ALERT "Can't request IRQ line %d for GPIO pin %d\n", irq_num, GPIO_BUTTON);
+	}
 	return 0;
 }
 
@@ -267,6 +281,10 @@ void allocateIOMemory(void)
 	gpio_device.addr = (volatile unsigned int *)gpio_device.map;
 	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
 	GPIO_INPUT(LED);
+
+	//Use gpiolib for now
+	gpio_request(GPIO_BUTTON, "gpio_btn");
+	gpio_direction_input(GPIO_BUTTON);
 	//GPIO_OUTPUT(LED);
 	//printk(KERN_ALERT "make GPIO_WRITE()\n");
 	//GPIO_SET = 1 << LED;
