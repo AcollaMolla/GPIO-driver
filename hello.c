@@ -37,10 +37,10 @@ int scull_trim(struct scull_dev *dev)
 	return 0;
 }
 
-static irqreturn_t irq_handler(int irq, void *dev_id)
+static irq_handler_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs)
 {
 	printk(KERN_ALERT "Button pressed!\n");
-	return IRQ_HANDLED;
+	return (irq_handler_t)IRQ_HANDLED;
 }
 
 int scull_open(struct inode *inode, struct file *filp)
