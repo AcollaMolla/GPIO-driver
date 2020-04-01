@@ -298,9 +298,6 @@ void deallocateIO(int type)
 
 int scull_release(struct inode *inode, struct file *filp)
 {
-	int irq_num;
-	irq_num = gpio_to_irq(GPIO_BUTTON);
-	free_irq(irq_num, NULL);
 	return 0;
 }
 
@@ -373,6 +370,7 @@ static void __exit hello_exit(void)
 {
 	dev_t dev;
 	dev = MKDEV(dev_major, dev_minor);
+	int irq_num;
 	if(scull_devices)
 	{
 		printk(KERN_ALERT "Freeing allocated memory\n");
@@ -385,6 +383,9 @@ static void __exit hello_exit(void)
 	unregister_chrdev_region(dev, 1);
 	//release_mem_region(GPIO_BASE, GPIO_LENGTH);
 	//gpio_free(LED);
+	irq_num = gpio_to_irq(GPIO_BUTTON);
+	free_irq(irq_num, NULL);
+	
 	printk(KERN_ALERT "Goodbye! Freeing MAJOR %d\n", dev_major);
 }
 
