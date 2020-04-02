@@ -39,9 +39,15 @@ int scull_trim(struct scull_dev *dev)
 
 static irq_handler_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs)
 {
+	int led_val;
 	printk(KERN_ALERT "Button pressed!\n");
+	GPIO_INPUT(LED);
+	led_val = GPIO_READ(LED);
 	GPIO_OUTPUT(LED);
-	GPIO_SET = 1 << LED;
+	if(led_val == 0)
+		GPIO_SET = 1 << LED;
+	else
+		GPIO_CLR = 1 << LED;
 	return (irq_handler_t)IRQ_HANDLED;
 }
 
