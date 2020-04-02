@@ -40,6 +40,8 @@ int scull_trim(struct scull_dev *dev)
 static irq_handler_t irq_handler(unsigned int irq, void *dev_id, struct pt_regs *regs)
 {
 	printk(KERN_ALERT "Button pressed!\n");
+	GPIO_OUTPUT(LED);
+	GPIO_SET = 1 << LED;
 	return (irq_handler_t)IRQ_HANDLED;
 }
 
@@ -362,7 +364,7 @@ static int __init hello_init(void)
 	{
 		printk(KERN_ALERT "Cant assign IRQ Line %d to GPIO pin %d\n", irq_line, GPIO_BUTTON);
 	}
-	//allocateIOMemory();
+	allocateIOMemory();
 	return 0;
 }
 
