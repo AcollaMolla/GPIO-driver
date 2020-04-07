@@ -25,8 +25,6 @@
 #define GPIO_BASE (BCM2837_PERI_BASE + 0x200000)
 #define GPIO_LENGTH 0xB3
 
-const unsigned long START = 0x20200000;
-const unsigned long LEN = 0x40;
 const unsigned int LED = 16;
 const unsigned int GPIO_BUTTON = 23;
 const int QUANTUM = 4000;

@@ -134,7 +134,6 @@ ssize_t scull_read(struct file *filp, char __user *buf, size_t count, loff_t *f_
 	retval = count;
 
 	out:
-		printk(KERN_ALERT "retval = %zu\n",retval);
 		up(&dev->sem);
 		return retval;
 }
@@ -149,13 +148,9 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 	int item, s_pos, q_pos, rest;
 	ssize_t retval = -ENOMEM;
 	
-	printk(KERN_ALERT "dev->size = %lu\n", dev->size);
-	
 	item = (long)*f_pos / itemsize;
 	rest = (long)*f_pos % itemsize;
 	s_pos = rest / quantum; q_pos = rest % quantum;
-	
-	printk(KERN_ALERT "item=%d s_pos=%d q_pos=%d rest=%d\n", item, s_pos, q_pos, rest);
 	
 	if(down_interruptible(&dev->sem))
 	{
@@ -171,13 +166,12 @@ ssize_t scull_write(struct file *filp, const char __user *buf, size_t count, lof
 			goto out;
 		memset(dptr->data, 0, qset * sizeof(char *));
 	}
+
 	if(!dptr->data[s_pos]){
 		dptr->data[s_pos] = kmalloc(quantum, GFP_KERNEL);
 		if(!dptr->data[s_pos])
 			goto out;
 	}
-
-	printk(KERN_ALERT "count=%ld\n", count);
 
 	if(count > quantum - q_pos)
 	{
@@ -269,7 +263,6 @@ void allocateIOPort(void)
 
 void allocateIOMemory(void)
 {
-	char led_value = 'c';
 	if(request_mem_region(GPIO_BASE, GPIO_LENGTH, "Acolla Molla's GPIO driver") == NULL)
 	{
 		printk(KERN_ALERT "ERROR: Can not allocate iomem for GPIO. But I dont care, lets try use the port anyway :)\n");
@@ -280,11 +273,6 @@ void allocateIOMemory(void)
 	gpio_device.addr = (volatile unsigned int *)gpio_device.map;
 	printk(KERN_ALERT "Has access to address starting at %u\n", gpio_device.addr);
 	GPIO_INPUT(LED);
-
-	//GPIO_OUTPUT(LED);
-	//printk(KERN_ALERT "make GPIO_WRITE()\n");
-	//GPIO_SET = 1 << LED;
-	//printk(KERN_ALERT "Set GPIO pin %d to 1)\n", LED);
 }
 
 void deallocateIO(int type)
